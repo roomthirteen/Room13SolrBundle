@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+
+    <services>
+        <service id="room13.solr.manager" class="Room13\SolrBundle\Solr\SolrManager">
+            <argument type="service" id="room13.solr.service"/>
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="room13.solr.service" class="Room13\SolrBundle\Solr\SolrService">
+            <argument>%room13.solr.config.host%</argument>
+            <argument>%room13.solr.config.port%</argument>
+            <argument>%room13.solr.config.path%</argument>
+        </service>
+
+
+    </services>
+
+</container>
