@@ -36,7 +36,7 @@ class SolrManager
     }
 
 
-    public function addIndex($id, SolrIndex $index)
+    public function addIndex($id,  $index)
     {
         $this->indexes[$index->getName()]=$index;
     }
