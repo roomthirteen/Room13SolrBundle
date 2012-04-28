@@ -19,6 +19,7 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
+            ->booleanNode('enabled')->defaultTrue()->end()
             ->scalarNode('host')->cannotBeEmpty()->defaultValue('localhost')->end()
             ->scalarNode('port')->cannotBeEmpty()->defaultValue('8983')->end()
             ->scalarNode('path')->cannotBeEmpty()->defaultValue('/solr')->end()
