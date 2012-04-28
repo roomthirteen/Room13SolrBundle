@@ -7,57 +7,54 @@ NOTE: work in progress, this is gonna be great but almost no docs so far
 
 
 Usage
-================
+===============
 
-1: Define a custom index
+Define a custom index
 
-<?php
-
-namespace Room13\GeoBundle\Solr;
-
-
-use Room13\SolrBundle\Solr\DoctrineSolrIndex;
-
-use Doctrine\ORM\EntityManager;
-
-class CityIndex extends DoctrineSolrIndex
-{
-
-    public function getName()
+    <?php
+    
+    namespace Room13\GeoBundle\Solr;
+    
+    use Room13\SolrBundle\Solr\DoctrineSolrIndex;
+    use Doctrine\ORM\EntityManager;
+    
+    class CityIndex extends DoctrineSolrIndex
     {
-        return 'room13_geo_city';
+    
+        public function getName()
+        {
+            return 'room13_geo_city';
+        }
+    
+    
+        public function getFields()
+        {
+            return array(
+                'name'  => 's',
+                'lat'   => 'f',
+                'lng'   => 'f',
+            );
+        }
+    
+        public function getType()
+        {
+            return 'Room13\GeoBundle\Entity\City';
+        }    
+    
     }
-
-
-    public function getFields()
-    {
-        return array(
-            'name'  => 's',
-            'lat'   => 'f',
-            'lng'   => 'f',
-        );
-    }
-
-    public function getType()
-    {
-        return 'Room13\GeoBundle\Entity\City';
-    }
-
-
-}
 
 
 2: Register index
 
-<service id="room13.geo.solr.index.city" class="Room13\GeoBundle\Solr\CityIndex">
-    <tag name="room13.solr.index" />
-    <argument type="service" id="doctrine.orm.entity_manager" />
-</service>
+    <service id="room13.geo.solr.index.city" class="Room13\GeoBundle\Solr\CityIndex">
+      <tag name="room13.solr.index" />
+      <argument type="service" id="doctrine.orm.entity_manager" />
+    </service>
 
 
-3: index
-./app/console room13:solr:index
+Build index
+    ./app/console room13:solr:index --all
 
 
-3: search
-./app/console room13:solr:search --index=room13_geo_city zag
+Search index
+    ./app/console room13:solr:search --index=room13_geo_city Sup* 
