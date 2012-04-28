@@ -46,15 +46,15 @@ Define a custom index
 
 2: Register index
 
-  <service id="room13.geo.solr.index.city" class="Room13\GeoBundle\Solr\CityIndex">
+    <service id="room13.geo.solr.index.city" class="Room13\GeoBundle\Solr\CityIndex">
       <tag name="room13.solr.index" />
       <argument type="service" id="doctrine.orm.entity_manager" />
-  </service>
+    </service>
 
 
 Build index
-  ./app/console room13:solr:index --all
+    ./app/console room13:solr:index --all
 
 
 Search index
-  ./app/console room13:solr:search --index=room13_geo_city Sup* 
+    ./app/console room13:solr:search --index=room13_geo_city Sup* 
