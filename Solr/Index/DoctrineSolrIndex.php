@@ -1,6 +1,6 @@
 <?php
 
-namespace Room13\SolrBundle\Solr;
+namespace Room13\SolrBundle\Solr\Index;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
