@@ -1,0 +1,126 @@
+<?xml version="1.0" ?>
+<!--
+ solr schema for the Room13SolrBundle solr integration for the symfony2 framework.
+ the schema can be adapted and modified. be sure to leave the meta_ properties untouched
+ unless you know what you are doing and have checked the impact on the SolrField implementation any changes
+ could do.
+-->
+
+<schema name="example core zero" version="1.1">
+
+    <types>
+        <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
+        <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true" omitNorms="true"/>
+        <fieldType name="int" class="solr.TrieIntField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
+        <fieldType name="float" class="solr.TrieFloatField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
+        <fieldType name="long" class="solr.TrieLongField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
+        <fieldType name="double" class="solr.TrieDoubleField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
+        <fieldType name="geopoint" class="solr.PointType" dimension="2" subFieldType="double"/>
+        <fieldType name="date" class="solr.DateField" />
+
+        <fieldType name="text" class="solr.TextField" positionIncrementGap="100">
+            <analyzer type="index">
+                <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+                <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="1" preserveOriginal="1" />
+                <filter class="solr.LowerCaseFilterFactory"/>
+            </analyzer>
+            <analyzer type="query">
+                <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+                <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1" preserveOriginal="1" />
+                <filter class="solr.LowerCaseFilterFactory"/>
+            </analyzer>
+        </fieldType>
+
+    </types>
+
+    <fields>
+
+        <!--
+            the unique id if the object in its meta_type namespace
+        -->
+        <field name="meta_id" type="long" indexed="true" stored="true" multiValued="false" required="true" />
+
+        <!--
+            type and class are two different concepts here, the type is determined by the SolrIndex,
+            wheras the class is the actual class name of the object that is beeing indexed. in some
+            cases, like inheritance there might be a base type for all subclasses but is still must
+            be possible to filter forcertain concrete sublasses.
+
+            type will be determined by the getType method of the SolrIndex implementation and class
+            will be determined by calling the get_class function foreach indexed object.
+
+            also the type value will used to lookup objects to index from database. when using doctrines single
+            table inheritance the type and class values may differ
+         -->
+        <field name="meta_type" type="string" indexed="true" stored="true" multiValued="false" required="true" />
+        <field name="meta_class" type="string" indexed="true" stored="true" multiValued="false" required="true" />
+
+        <!--
+            the name of the index, returned by the getName method of the SolrIndex implementation
+        -->
+        <field name="meta_index" type="string" indexed="true" stored="true" multiValued="false" required="true" />
+
+        <!--
+            a human readable name for the object. determinded by the __toString method of the indexed object
+        -->
+        <field name="meta_name" type="string" indexed="true" stored="true" multiValued="false" required="true" />
+
+        <!--
+            timestamps to reflect when the object has been created and updated. these fields will be added if
+            the getCreated and getUpdated methods of a class exist. as best practice the doctrine timestampable
+            extension should be used that automaticly handles the creation and modification of these properties.
+        -->
+        <field name="meta_created" type="date" indexed="true" stored="true" multiValued="false" required="false" />
+        <field name="meta_updated" type="date" indexed="true" stored="true" multiValued="false" required="false" />
+
+        <!--
+            a field to be able to store multible versions of an object
+        -->
+        <field name="meta_version" type="long" indexed="true" stored="true" multiValued="false" required="false" />
+
+        <!--
+            dynamic fields to be used as whished by the concrete SolrIndex implementations
+        -->
+        <dynamicField name="*_i" type="int" indexed="true" stored="true" multiValued="true"/>
+        <dynamicField name="*_f" type="float" indexed="true" stored="true" multiValued="true"/>
+        <dynamicField name="*_d" type="double" indexed="true" stored="true" multiValued="true"/>
+        <dynamicField name="*_s" type="string" indexed="true" stored="true" termVectors="true" multiValued="true"/>
+        <dynamicField name="*_t" type="text" indexed="true" stored="true" termVectors="true" multiValued="true"/>
+        <dynamicField name="*_date" type="date" indexed="true" stored="true" multiValued="true"/>
+
+    </fields>
+    <!--
+     <types>
+
+       <fieldtype name="string"  class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
+       <fieldtype name="number"  class="solr.IntField" />
+       <fieldType name="geo" class="solr.TrieDoubleField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
+         <fieldType name="date" class="solr.DateField" sortMissingLast="true" omitNorms="true"/>
+     </types>
+
+    <fields>
+
+       <field name="id"      type="number"   indexed="true"  stored="true"  multiValued="false" required="true" />
+       <field name="type"      type="string"   indexed="true"  stored="true"  multiValued="false" required="true" />
+       <field name="title"    type="string"   indexed="true"  stored="true"  multiValued="false" required="true" />
+        <field name="date"    type="date"   indexed="true"  stored="true"  />
+
+
+       <field name="lat"   type="geo"   indexed="true"  stored="true"  multiValued="false" />
+       <field name="lng"   type="geo"   indexed="true"  stored="true"  multiValued="false" />
+
+       <field name="city_id"   type="number"   indexed="true"  stored="true"  multiValued="false" />
+       <field name="country_id"   type="number"   indexed="true"  stored="true"  multiValued="false" />
+
+       <field name="city"   type="string"   indexed="true"  stored="true"  multiValued="false" />
+       <field name="country"   type="string"   indexed="true"  stored="true"  multiValued="false" />
+
+    </fields>
+    -->
+
+    <uniqueKey>meta_id</uniqueKey>
+    <defaultSearchField>meta_name</defaultSearchField>
+    <solrQueryParser defaultOperator="OR"/>
+
+</schema>
+
