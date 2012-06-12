@@ -18,19 +18,41 @@ abstract class DoctrineSolrIndex extends SolrIndex
         $this->em = $em;
     }
 
-    public function listObjectsToUpdate()
+    public function listObjectsToUpdate(\DateTime $modifiedSince)
     {
-        return $this->em->getRepository($this->getType())->findAll();
+        $qb = $this->em->createQueryBuilder()
+            ->from($this->getType(),'o')
+            ->select('o')
+            ->where('o.updated > :lastUpdate')
+            ->setParameter('lastUpdate',$modifiedSince)
+        ;
+
+        return $qb->getQuery()->getResult();
     }
 
-    public function countObjectsToUpdate()
+    public function countObjectsToUpdate(\DateTime $modifiedSince)
     {
-        return $this->em->createQuery("SELECT COUNT(o) FROM {$this->getType()} o")->getSingleScalarResult();
+        $qb = $this->em->createQueryBuilder()
+            ->from($this->getType(),'o')
+            ->select('COUNT(o)')
+            ->where('o.updated > :lastUpdate')
+            ->setParameter('lastUpdate',$modifiedSince)
+        ;
+
+        return $qb->getQuery()->getSingleScalarResult();
     }
 
     public function countObjects()
     {
         return $this->em->createQuery("SELECT COUNT(o) FROM {$this->getType()} o")->getSingleScalarResult();
+    }
+
+    /**
+     * @return \Doctrine\ORM\EntityManager
+     */
+    protected function getEntityManager()
+    {
+        return $this->em;
     }
 
 }

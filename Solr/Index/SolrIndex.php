@@ -8,12 +8,16 @@ use Doctrine\ORM\EntityManager;
 abstract class SolrIndex
 {
 
-
+    /**
+     * @param $object Entity to index
+     * @return \Apache_Solr_Document
+     */
     public function indexObject($object)
     {
         $doc = new \Apache_Solr_Document();
 
         $doc->meta_id       = $object->getId();
+        $doc->meta_class    = get_class($object);
         $doc->meta_type     = $this->getType();
         $doc->meta_index    = $this->getName();
         $doc->meta_name     = $object->__toString();
@@ -48,7 +52,7 @@ abstract class SolrIndex
 
         if(is_callable(array($this,$indexMethod)))
         {
-            $data = $this->$indexMethod($object->$getterMethod());
+            $data = $this->$indexMethod($doc, $field,$type,$object);
             foreach($data as $key=>$value)
             {
                 $doc->$key=$this->formatField($type,$value);
@@ -91,8 +95,8 @@ abstract class SolrIndex
     public abstract function getName();
     public abstract function getFields();
     public abstract function getType();
-    public abstract function listObjectsToUpdate();
-    public abstract function countObjectsToUpdate();
+    public abstract function listObjectsToUpdate(\DateTime $modifiedSince);
+    public abstract function countObjectsToUpdate(\DateTime $modifiedSince);
     public abstract function countObjects();
 
 }

@@ -30,6 +30,7 @@ class SolrIndexCommand extends SolrBaseCommand
         $man        = $this->getSolrManager();
         $service    = $this->getSolrService();
         $indexes    = $man->getIndexes();
+        $em         = $this->getContainer()->get('doctrine.orm.entity_manager');
 
 
         if($input->getOption('all') && $input->getOption('none'))
@@ -68,9 +69,11 @@ class SolrIndexCommand extends SolrBaseCommand
             $output->writeln("Listing available indexes\n");
             foreach($indexes as $index)
             {
+                $indexMeta = $man->getIndexMeta($index);
+
                 $output->writeln("{$index->getName()}:");
                 $output->writeln("  type       : {$index->getType()}");
-                $output->writeln("  count      : {$index->countObjectsToUpdate()}");
+                $output->writeln("  count      : {$index->countObjectsToUpdate($indexMeta->getLastUpdate())}");
                 $output->writeln("  updatable  : {$index->countObjects()}");
                 $output->writeln("-");
             }
@@ -92,8 +95,9 @@ class SolrIndexCommand extends SolrBaseCommand
                 $output->writeln("  {$index->getName()}");
                 $service->delete("<delete><query>meta_index:{$index->getName()}</query></delete>");
 
-
-
+                $meta = $man->getIndexMeta($index);
+                $meta->setLastUpdate(new \DateTime('1984'));
+                $em->flush($meta);
             }
 
             $service->commit();
@@ -108,8 +112,10 @@ class SolrIndexCommand extends SolrBaseCommand
         foreach($indexes as $index)
         {
 
-            $numResults = $index->countObjectsToUpdate();
-            $result     = $index->listObjectsToUpdate();
+            $meta       = $man->getIndexMeta($index);
+            $thisUpdate = new \DateTime();
+            $numResults = $index->countObjectsToUpdate($meta->getLastUpdate());
+            $result     = $index->listObjectsToUpdate($meta->getLastUpdate());
 
             $output->writeln("Updating index {$index->getName()}, {$numResults} objects to update");
 
@@ -118,6 +124,10 @@ class SolrIndexCommand extends SolrBaseCommand
                 $doc = $index->indexObject($object);
                 $man->getService()->addDocument($doc);
             }
+
+            // update the last updated valud of the index meta
+            $meta->setLastUpdate($thisUpdate);
+            $em->flush($meta);
 
 
         }

@@ -23,6 +23,8 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('host')->cannotBeEmpty()->defaultValue('localhost')->end()
             ->scalarNode('port')->cannotBeEmpty()->defaultValue('8983')->end()
             ->scalarNode('path')->cannotBeEmpty()->defaultValue('/solr/default')->end()
+            ->scalarNode('schema_root')->cannotBeEmpty()->end()
+            ->scalarNode('solr_root')->cannotBeEmpty()->end()
             ->end()
         ;
 

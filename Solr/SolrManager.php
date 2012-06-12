@@ -2,8 +2,9 @@
 
 namespace Room13\SolrBundle\Solr;
 
-use Symfony\Component\DependencyInjection\Container;
 use Doctrine\ORM\EntityManager;
+use Room13\SolrBundle\Solr\Index\SolrIndex;
+use Room13\SolrBundle\Entity\IndexMeta;
 
 class SolrManager
 {
@@ -11,12 +12,6 @@ class SolrManager
      * @var SolrIndex[]
      */
     private $indexes = array();
-
-
-    /**
-     * @var \Symfony\Component\DependencyInjection\Container
-     */
-    private $container;
 
     /**
      * @var SolrService
@@ -28,13 +23,49 @@ class SolrManager
      */
     private $em;
 
-    function __construct(SolrService $service,Container $container)
+    function __construct(SolrService $service,EntityManager $em)
     {
         $this->service = $service;
-        $this->container = $container;
+        $this->em = $em;
 
     }
 
+    /**
+     * @param mixed $name SolrIndex instance of name of index as string
+     * @return \Room13\SolrBundle\Entity\IndexMeta
+     */
+    public function getIndexMeta($index)
+    {
+        if(!$index instanceof SolrIndex)
+        {
+            // allow to pass the index name instead of the object
+            $index = $this->getIndex($index);
+        }
+
+        if($index===null)
+        {
+            throw new \InvalidArgumentException(sprintf(
+                '%s is not a valid solr index',
+                $index
+            ));
+        }
+
+        $repository = $this->em->getRepository('Room13\SolrBundle\Entity\IndexMeta');
+        $meta       = $repository->findOneByName($index->getName());
+
+
+        if($meta === null)
+        {
+            // the meta data has not been created yet, so we do it now
+            $meta = new IndexMeta();
+            $meta->setName($index->getName());
+
+            $this->em->persist($meta);
+            $this->em->flush($meta);
+        }
+
+        return $meta;
+    }
 
     public function addIndex($id,  $index)
     {

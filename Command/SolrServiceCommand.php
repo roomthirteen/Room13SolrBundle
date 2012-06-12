@@ -14,16 +14,18 @@ class SolrServiceCommand extends SolrBaseCommand
     {
 
         $this
-            ->setName('room13:solr:service')
-            ->setDescription('Controls the solr server')
+            ->setName('room13:solr:run-server')
+            ->setDescription('Runs the solr server process')
         ;
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
 
-        $dir = dirname(__FILE__).'/../vendor/solr/';
-        $p = popen("cd {$dir} && java -jar start.jar","r");
+        $solrRoot = $this->getContainer()->getParameter('room13.solr.config.solr_root');
+        $schemaRoot = $this->getContainer()->getParameter('room13.solr.config.schema_root');
+
+        $p = popen("cd {$solrRoot} && java -Dsolr.solr.home={$schemaRoot} -jar start.jar","r");
 
         fpassthru($p);
 
