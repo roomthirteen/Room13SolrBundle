@@ -6,7 +6,7 @@
 
 
     <services>
-        <service id="room13.solr.manager" class="Room13\SolrBundle\Solr\SolrManager">
+        <service id="room13.solr" class="Room13\SolrBundle\Solr\SolrFacade">
             <argument type="service" id="room13.solr.service"/>
             <argument type="service" id="doctrine.orm.entity_manager"/>
         </service>

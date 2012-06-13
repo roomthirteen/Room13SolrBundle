@@ -31,7 +31,7 @@ class IndexMeta
     /**
      * @var datetime $lastUpdate
      *
-     * @ORM\Column(name="lastUpdate", type="datetime")
+     * @ORM\Column(name="lastUpdate", type="datetime", nullable=false)
      */
     private $lastUpdate;
 
@@ -45,7 +45,6 @@ class IndexMeta
 
     function __construct()
     {
-        $this->lastUpdate = new \DateTime('1984');
         $this->autoIndex = false;
     }
 

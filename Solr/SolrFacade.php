@@ -3,10 +3,11 @@
 namespace Room13\SolrBundle\Solr;
 
 use Doctrine\ORM\EntityManager;
-use Room13\SolrBundle\Solr\Index\SolrIndex;
+use Room13\SolrBundle\Solr\Index;
 use Room13\SolrBundle\Entity\IndexMeta;
+use Room13\SolrBundle\Solr\Query;
 
-class SolrManager
+class SolrFacade
 {
     /**
      * @var SolrIndex[]
@@ -30,41 +31,13 @@ class SolrManager
 
     }
 
-    /**
-     * @param mixed $name SolrIndex instance of name of index as string
-     * @return \Room13\SolrBundle\Entity\IndexMeta
-     */
-    public function getIndexMeta($index)
+    public function search(Query $query,$offset=0,$limit=10)
     {
-        if(!$index instanceof SolrIndex)
-        {
-            // allow to pass the index name instead of the object
-            $index = $this->getIndex($index);
-        }
+        $queryString = $query->toString();
 
-        if($index===null)
-        {
-            throw new \InvalidArgumentException(sprintf(
-                '%s is not a valid solr index',
-                $index
-            ));
-        }
+        $response = $this->service->search($queryString,$offset,$limit);
 
-        $repository = $this->em->getRepository('Room13\SolrBundle\Entity\IndexMeta');
-        $meta       = $repository->findOneByName($index->getName());
-
-
-        if($meta === null)
-        {
-            // the meta data has not been created yet, so we do it now
-            $meta = new IndexMeta();
-            $meta->setName($index->getName());
-
-            $this->em->persist($meta);
-            $this->em->flush($meta);
-        }
-
-        return $meta;
+        return new ResultSet($response,$queryString,$offset,$limit);
     }
 
     public function addIndex($id,  $index)

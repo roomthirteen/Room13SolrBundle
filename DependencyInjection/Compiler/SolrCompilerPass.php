@@ -11,12 +11,12 @@ class SolrCompilerPass implements CompilerPassInterface
 
     public function process(ContainerBuilder $container)
     {
-        if(!$container->hasDefinition('room13.solr.manager'))
+        if(!$container->hasDefinition('room13.solr'))
         {
             return;
         }
 
-        $manager = $container->getDefinition('room13.solr.manager');
+        $manager = $container->getDefinition('room13.solr');
 
         foreach($container->findTaggedServiceIds('room13.solr.index') as $id=>$service)
         {

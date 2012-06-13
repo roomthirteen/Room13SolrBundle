@@ -1,11 +1,11 @@
 <?php
 
-namespace Room13\SolrBundle\Solr\Index;
+namespace Room13\SolrBundle\Solr;
 
 use Doctrine\ORM\EntityManager;
 
 
-abstract class SolrIndex
+abstract class Index
 {
 
     /**
@@ -95,8 +95,10 @@ abstract class SolrIndex
     public abstract function getName();
     public abstract function getFields();
     public abstract function getType();
-    public abstract function listObjectsToUpdate(\DateTime $modifiedSince);
-    public abstract function countObjectsToUpdate(\DateTime $modifiedSince);
+    public abstract function listObjectsToUpdate();
+    public abstract function countObjectsToUpdate();
     public abstract function countObjects();
+    public abstract function setIndexLastUpdated(\DateTime $date);
+    public abstract function resetIndexLastUpdated();
 
 }
