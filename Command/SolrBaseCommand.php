@@ -13,11 +13,11 @@ abstract class SolrBaseCommand extends \Symfony\Bundle\FrameworkBundle\Command\C
 
 
    /**
-    * @return \Room13\SolrBundle\Solr\SolrManager
+    * @return \Room13\SolrBundle\Solr\SolrFacade
     */
-    public function getSolrManager()
+    public function getSolr()
     {
-        return $this->getContainer()->get('room13.solr.manager');
+        return $this->getContainer()->get('room13.solr');
     }
 
     /**

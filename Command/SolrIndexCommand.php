@@ -27,10 +27,24 @@ class SolrIndexCommand extends SolrBaseCommand
     public function execute(InputInterface $input, OutputInterface $output)
     {
 
-        $man        = $this->getSolrManager();
-        $service    = $this->getSolrService();
-        $indexes    = $man->getIndexes();
+        $solr       = $this->getSolr();
+        $indexes    = array();
         $em         = $this->getContainer()->get('doctrine.orm.entity_manager');
+
+        if($input->getOption('list'))
+        {
+            $output->writeln("Listing available indexes\n");
+            foreach($solr->getIndexes() as $index)
+            {
+
+                $output->writeln("{$index->getName()}:");
+                $output->writeln("  type       : {$index->getType()}");
+                $output->writeln("  count      : {$index->countObjectsToUpdate()}");
+                $output->writeln("  updatable  : {$index->countObjects()}");
+                $output->writeln("-");
+            }
+            return;
+        }
 
 
         if($input->getOption('all') && $input->getOption('none'))
@@ -40,7 +54,7 @@ class SolrIndexCommand extends SolrBaseCommand
 
         if($input->getOption('all'))
         {
-            $indexes = $man->getIndexes();
+            $indexes = $solr->getIndexes();
         }
 
         if($input->getOption('none'))
@@ -50,34 +64,18 @@ class SolrIndexCommand extends SolrBaseCommand
 
         foreach($input->getArgument('include') as $indexToInclude)
         {
-            $index = $man->getIndex($indexToInclude);
+            $index = $solr->getIndex($indexToInclude);
 
             if(!$index)
             {
                 throw new \Exception(sprintf(
                     'Solr index %s not found, available indexes are: %s',
                     $indexToInclude,
-                    implode(', ',array_keys($man->getIndexes()))
+                    implode(', ',array_keys($solr->getIndexes()))
                 ));
             }
 
             $indexes[]=$index;
-        }
-
-        if($input->getOption('list'))
-        {
-            $output->writeln("Listing available indexes\n");
-            foreach($indexes as $index)
-            {
-                $indexMeta = $man->getIndexMeta($index);
-
-                $output->writeln("{$index->getName()}:");
-                $output->writeln("  type       : {$index->getType()}");
-                $output->writeln("  count      : {$index->countObjectsToUpdate($indexMeta->getLastUpdate())}");
-                $output->writeln("  updatable  : {$index->countObjects()}");
-                $output->writeln("-");
-            }
-            return;
         }
 
         if(count($indexes)===0)
@@ -93,15 +91,12 @@ class SolrIndexCommand extends SolrBaseCommand
             foreach($indexes as $index)
             {
                 $output->writeln("  {$index->getName()}");
-                $service->delete("<delete><query>meta_index:{$index->getName()}</query></delete>");
-
-                $meta = $man->getIndexMeta($index);
-                $meta->setLastUpdate(new \DateTime('1984'));
-                $em->flush($meta);
+                $solr->getService()->delete("<delete><query>meta_index:{$index->getName()}</query></delete>");
+                $index->resetIndexLastUpdated();
             }
 
-            $service->commit();
-            $service->optimize();
+            $solr->getService()->commit();
+            $solr->getService()->optimize();
 
             return;
         }
@@ -112,28 +107,24 @@ class SolrIndexCommand extends SolrBaseCommand
         foreach($indexes as $index)
         {
 
-            $meta       = $man->getIndexMeta($index);
-            $thisUpdate = new \DateTime();
-            $numResults = $index->countObjectsToUpdate($meta->getLastUpdate());
-            $result     = $index->listObjectsToUpdate($meta->getLastUpdate());
+            $updateTime = new \DateTime();
+            $numResults = $index->countObjectsToUpdate();
+            $result     = $index->listObjectsToUpdate();
 
             $output->writeln("Updating index {$index->getName()}, {$numResults} objects to update");
 
             foreach($result as $object)
             {
                 $doc = $index->indexObject($object);
-                $man->getService()->addDocument($doc);
+                $solr->getService()->addDocument($doc);
             }
 
-            // update the last updated valud of the index meta
-            $meta->setLastUpdate($thisUpdate);
-            $em->flush($meta);
-
+            $index->setIndexLastUpdated($updateTime);
 
         }
 
-        $man->getService()->commit();
-        $man->getService()->optimize();
+        $solr->getService()->commit();
+        $solr->getService()->optimize();
 
         $output->writeln("");
 

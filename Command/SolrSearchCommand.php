@@ -25,14 +25,14 @@ class SolrSearchCommand extends SolrBaseCommand
     public function execute(InputInterface $input, OutputInterface $output)
     {
 
-        $man        = $this->getSolrManager();
-        $service    = $man->getService();
+        $solr        = $this->getSolr();
+        $service    = $solr->getService();
 
         $params = array();
 
         if($input->getOption('index'))
         {
-            $index = $man->getIndex($input->getOption('index'));
+            $index = $solr->getIndex($input->getOption('index'));
             if(!$index)
             {
                 throw new \Exception(sprintf(
