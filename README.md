@@ -58,3 +58,14 @@ Build index
 
 Search index
     ./app/console room13:solr:search --index=room13_geo_city Sup* 
+
+
+
+Build a search query
+
+$oQuery = sequin\Query::newInstance('"Thomas Newman"')
+    ->andTerm('soundtrack', null, 3)
+    ->andQuery('music', 'dept')
+        ->orTerm('film')
+    ->endQuery()
+    ->notTerm('"Erin Brockovich"');
