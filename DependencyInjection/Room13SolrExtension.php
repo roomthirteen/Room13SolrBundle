@@ -25,7 +25,7 @@ class Room13SolrExtension extends Extension
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
 
-        foreach(array('host','port','path','solr_root','schema_root') as $key)
+        foreach(array('host','port','path','solr_root','schema_root','http_transport_class') as $key)
         {
             $container->setParameter('room13.solr.config.'.$key,$config[$key]);
         }

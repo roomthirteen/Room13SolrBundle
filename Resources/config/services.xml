@@ -11,10 +11,14 @@
             <argument type="service" id="doctrine.orm.entity_manager"/>
         </service>
 
+        <service id="room13.solr.service.transport" class="%room13.solr.config.http_transport_class%">
+        </service>
+
         <service id="room13.solr.service" class="Room13\SolrBundle\Solr\SolrService">
             <argument>%room13.solr.config.host%</argument>
             <argument>%room13.solr.config.port%</argument>
             <argument>%room13.solr.config.path%</argument>
+            <argument type="service" id="room13.solr.service.transport"/>
         </service>
 
 

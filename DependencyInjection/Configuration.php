@@ -25,8 +25,12 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('path')->cannotBeEmpty()->defaultValue('/solr/default')->end()
             ->scalarNode('schema_root')->cannotBeEmpty()->end()
             ->scalarNode('solr_root')->cannotBeEmpty()->end()
+            ->scalarNode('http_transport_class')->cannotBeEmpty()->defaultValue('Apache_Solr_HttpTransport_Curl')->end()
             ->end()
         ;
+
+
+
 
 
         return $treeBuilder;
