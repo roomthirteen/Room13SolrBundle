@@ -113,10 +113,19 @@ class SolrIndexCommand extends SolrBaseCommand
 
             $output->writeln("Updating index {$index->getName()}, {$numResults} objects to update");
 
+            $indexedCount = 0;
+
             foreach($result as $object)
             {
                 $doc = $index->indexObject($object);
                 $solr->getService()->addDocument($doc);
+
+                $indexedCount++;
+                if($indexedCount%50===0)
+                {
+                    $output->write('.');
+                    $solr->getService()->commit();
+                }
             }
 
             $index->setIndexLastUpdated($updateTime);
